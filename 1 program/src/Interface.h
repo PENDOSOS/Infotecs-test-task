@@ -15,7 +15,7 @@ class InterfaceFormatter
 public:
 	virtual void sort() = 0;
 
-	virtual void repalceEven() = 0;
+	virtual void replceEven() = 0;
 };
 
 class InterfaceChecker

@@ -7,17 +7,20 @@ void UserStringHandler::sort()
 	std::sort(data.begin(), data.end());
 }
 
-void UserStringHandler::repalceEven()
+void UserStringHandler::replceEven()
 {
 	std::string replacement_substring = "KB";
-	for (int i = 0; i < data.length(); i++)
+	std::string temp = data;
+	int i = 0;
+	while (i < data.length())
 	{
-		std::string replacable_substring(&data[i]);
+		std::string replacable_substring = data.substr(i, 1);
 
-		if (std::stoi(replacable_substring) % 2 == 0)
+		if (replacable_substring != "B" && std::stoi(replacable_substring) % 2 == 0)
 		{
 			data.replace(i, 1, replacement_substring);
 		}
+		i++;
 	}
 }
 
@@ -51,6 +54,7 @@ void UserStringHandler::doTask(std::string& buffer)
 		{
 			sort();
 			checkForDigits();
+			replceEven();
 			writeIntoBuffer(buffer);
 			std::cout << "Buffer written" << std::endl;
 			data.clear();

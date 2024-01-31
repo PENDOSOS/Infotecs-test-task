@@ -8,7 +8,7 @@ public:
 
 private:
 	void sort() override;
-	void repalceEven() override;
+	void replceEven() override;
 
 	bool checkLength() override;
 	bool checkForDigits() override;
