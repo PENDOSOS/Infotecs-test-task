@@ -15,13 +15,16 @@ void BufferHandler::sum()
 		if (data[i] == 'B')
 		{
 			begin_of_number = i + 1;
-			i++;
+			if (data.find("K", i) == std::string::npos) //check whether there is K after B 
+				length_of_number++;						//if not - length_of_number = 1
 		}
 		else if (data[i] == 'K' || i == data.length() - 1)
 		{
-			length_of_number = i - begin_of_number;
+			length_of_number += i - begin_of_number;
 			number = data.substr(begin_of_number, length_of_number);
-			this->sum_of_numbers += std::stoi(number);
+			if (length_of_number != 0)
+				this->sum_of_numbers += std::stoi(number);
+			length_of_number = 0;
 		}
 	}
 }
