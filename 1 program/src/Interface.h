@@ -29,5 +29,5 @@ public:
 class InterfaceAdder
 {
 public:
-	virtual bool sum() = 0;
+	virtual void sum() = 0;
 };
