@@ -2,12 +2,15 @@
 
 #include <iostream>
 #include <string>
+#include <mutex>
+#include <thread>
+#include <condition_variable>
 
 template <typename T>
 class InterfaceHandler
 {
 public:
-	virtual void doTask(T& buffer) = 0;
+	virtual void doTask(T& buffer, std::mutex& console_mtx, std::mutex& buffer_mtx, std::condition_variable& buffer_check, bool& is_filled) = 0;
 };
 
 class InterfaceFormatter

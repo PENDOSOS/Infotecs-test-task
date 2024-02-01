@@ -39,29 +39,33 @@ bool UserStringHandler::checkForDigits()
 	return true;
 }
 
-void UserStringHandler::writeIntoBuffer(std::string& buffer)
+void UserStringHandler::writeIntoBuffer(std::string& buffer, std::mutex& buffer_mtx, std::condition_variable& buffer_check, bool& is_filled)
 {
 	buffer = data;
+	is_filled = true;
 }
 
-void UserStringHandler::doTask(std::string& buffer)
+void UserStringHandler::doTask(std::string& buffer, std::mutex& console_mtx, std::mutex& buffer_mtx, std::condition_variable& buffer_check, bool& is_filled)
 {
 	while (true)
 	{
-		std::cout << "Enter string: ";
-		std::cin >> data;
+		{
+			std::scoped_lock lock(console_mtx);
+			std::cout << "Enter string: ";
+			std::cin >> data;
+		}
 		if (checkLength() && checkForDigits())
 		{
 			sort();
 			checkForDigits();
 			replceEven();
-			writeIntoBuffer(buffer);
-			std::cout << "Buffer written" << std::endl;
+			{
+				std::unique_lock<std::mutex> locker(buffer_mtx);
+				writeIntoBuffer(buffer, buffer_mtx, buffer_check, is_filled);
+				buffer_check.notify_one();
+				buffer_check.wait(locker, [&is_filled] { return !is_filled; });
+			}
 			data.clear();
 		}
-		else if (data == "-")
-			return;
-		else
-			std::cout << "String is incorrect" << std::endl;
 	}
 }
