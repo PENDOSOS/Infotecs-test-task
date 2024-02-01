@@ -9,24 +9,22 @@ void BufferHandler::readFromBuffer(std::string& buffer, std::mutex& buffer_mtx, 
 
 void BufferHandler::sum()
 {
-	int begin_of_number = 0;
 	int length_of_number = 0;
 	std::string number;
-	for (int i = 0; i < data.length(); i++)
+	while (data.length() != 0)
 	{
-		if (data[i] == 'B')
+		length_of_number = data.find("KB");
+		if (length_of_number != std::string::npos)
 		{
-			begin_of_number = i + 1;
-			if (data.find("K", i) == std::string::npos) //check whether there is K after B 
-				length_of_number++;						//if not - length_of_number = 1
-		}
-		else if (data[i] == 'K' || i == data.length() - 1)
-		{
-			length_of_number += i - begin_of_number;
-			number = data.substr(begin_of_number, length_of_number);
-			if (length_of_number != 0)
+			number = data.substr(0, length_of_number);
+			if (number.length() != 0)
 				this->sum_of_numbers += std::stoi(number);
-			length_of_number = 0;
+			data.replace(0, length_of_number + 2, "");
+		}
+		else
+		{
+			this->sum_of_numbers += std::stoi(data);
+			data.clear();
 		}
 	}
 }
@@ -34,11 +32,12 @@ void BufferHandler::sum()
 void BufferHandler::writeData(std::mutex& console_mtx)
 {
 	std::scoped_lock lock(console_mtx);
-	std::cout << "Recieved data is: " << data << " sum is: " << sum_of_numbers << std::endl;
+	std::cout << "Recieved data is: " << data << std::endl;
 }
 
 void BufferHandler::sendData()
 {
+	//sending data
 	sum_of_numbers = 0;
 }
 
@@ -50,10 +49,9 @@ void BufferHandler::doTask(std::string& buffer, std::mutex& console_mtx, std::mu
 			std::unique_lock<std::mutex> locker(buffer_mtx);
 			buffer_check.wait(locker, [&is_filled] { return is_filled; });
 			readFromBuffer(buffer, buffer_mtx, buffer_check, is_filled);
-			sum();
 			writeData(console_mtx);
-			buffer_check.notify_one();
 		}
+		sum();
 		sendData();
 	}
 }

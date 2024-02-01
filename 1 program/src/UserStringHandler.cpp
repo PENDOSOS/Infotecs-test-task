@@ -41,8 +41,10 @@ bool UserStringHandler::checkForDigits()
 
 void UserStringHandler::writeIntoBuffer(std::string& buffer, std::mutex& buffer_mtx, std::condition_variable& buffer_check, bool& is_filled)
 {
+	std::unique_lock<std::mutex> locker(buffer_mtx);
 	buffer = data;
 	is_filled = true;
+	buffer_check.notify_one();
 }
 
 void UserStringHandler::doTask(std::string& buffer, std::mutex& console_mtx, std::mutex& buffer_mtx, std::condition_variable& buffer_check, bool& is_filled)
@@ -59,12 +61,7 @@ void UserStringHandler::doTask(std::string& buffer, std::mutex& console_mtx, std
 			sort();
 			checkForDigits();
 			replceEven();
-			{
-				std::unique_lock<std::mutex> locker(buffer_mtx);
-				writeIntoBuffer(buffer, buffer_mtx, buffer_check, is_filled);
-				buffer_check.notify_one();
-				buffer_check.wait(locker, [&is_filled] { return !is_filled; });
-			}
+			writeIntoBuffer(buffer, buffer_mtx, buffer_check, is_filled);
 			data.clear();
 		}
 	}
