@@ -1,10 +1,10 @@
 #include "BufferHandler.h"
+#include "Client.h"
 
 void BufferHandler::readFromBuffer(std::string& buffer, std::mutex& buffer_mtx, std::condition_variable& buffer_check, bool& is_filled)
 {
 	this->data = std::move(buffer);
 	is_filled = false;
-	//buffer_check.notify_one();
 }
 
 void BufferHandler::sum()
@@ -37,7 +37,8 @@ void BufferHandler::writeData(std::mutex& console_mtx)
 
 void BufferHandler::sendData()
 {
-	//sending data
+	Client client;
+	client.sendData(sum_of_numbers);
 	sum_of_numbers = 0;
 }
 
