@@ -1,10 +1,10 @@
 #pragma once
 #include "Interface.h"
 
-class UserStringHandler : private InterfaceFormatter, private InterfaceChecker, public InterfaceHandler<std::string>
+class UserStringHandler : private InterfaceFormatter, private InterfaceChecker, public InterfaceHandler
 {
 public:
-	void doTask(std::string& buffer, std::mutex& console_mtx, std::mutex& buffer_mtx, std::condition_variable& buffer_check, bool& is_filled) override;
+	void doTask(Buffer& buffer) override;
 
 private:
 	void sort() override;
@@ -13,7 +13,7 @@ private:
 	bool checkLength() override;
 	bool checkForDigits() override;
 
-	void writeIntoBuffer(std::string& buffer, std::mutex& buffer_mtx, std::condition_variable& buffer_check, bool& is_filled);
+	void writeIntoBuffer(Buffer& buffer);
 
 	std::string data;
 };

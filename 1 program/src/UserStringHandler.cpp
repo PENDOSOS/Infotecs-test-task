@@ -4,7 +4,7 @@
 
 void UserStringHandler::sort()
 {
-	std::sort(data.begin(), data.end());
+	std::sort(data.rbegin(), data.rend());
 }
 
 void UserStringHandler::replceEven()
@@ -16,7 +16,7 @@ void UserStringHandler::replceEven()
 	{
 		std::string replacable_substring = data.substr(i, 1);
 
-		if (replacable_substring != "B" && std::stoi(replacable_substring) % 2 == 0)
+		if (replacable_substring != "B" && std::stoll(replacable_substring) % 2 == 0)
 		{
 			data.replace(i, 1, replacement_substring);
 		}
@@ -39,20 +39,20 @@ bool UserStringHandler::checkForDigits()
 	return true;
 }
 
-void UserStringHandler::writeIntoBuffer(std::string& buffer, std::mutex& buffer_mtx, std::condition_variable& buffer_check, bool& is_filled)
+void UserStringHandler::writeIntoBuffer(Buffer& buffer)
 {
-	std::unique_lock<std::mutex> locker(buffer_mtx);
-	buffer = data;
-	is_filled = true;
-	buffer_check.notify_one();
+	std::unique_lock<std::mutex> locker(buffer.buffer_mtx);
+	buffer.data = data;
+	buffer.is_filled = true;
+	buffer.buffer_check.notify_one();
 }
 
-void UserStringHandler::doTask(std::string& buffer, std::mutex& console_mtx, std::mutex& buffer_mtx, std::condition_variable& buffer_check, bool& is_filled)
+void UserStringHandler::doTask(Buffer& buffer)
 {
 	while (true)
 	{
 		{
-			std::scoped_lock lock(console_mtx);
+			std::scoped_lock lock(buffer.console_mtx);
 			std::cout << "Enter string: ";
 			std::cin >> data;
 		}
@@ -61,7 +61,7 @@ void UserStringHandler::doTask(std::string& buffer, std::mutex& console_mtx, std
 			sort();
 			checkForDigits();
 			replceEven();
-			writeIntoBuffer(buffer, buffer_mtx, buffer_check, is_filled);
+			writeIntoBuffer(buffer);
 			data.clear();
 		}
 	}

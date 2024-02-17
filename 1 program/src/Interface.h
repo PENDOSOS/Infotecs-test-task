@@ -6,13 +6,20 @@
 #include <thread>
 #include <condition_variable>
 
+struct Buffer
+{
+	std::string data;
+	std::condition_variable buffer_check;
+	std::mutex console_mtx;
+	std::mutex buffer_mtx;
+	bool is_filled = false;
+};
 
-
-template <typename T>
+//template <typename T>
 class InterfaceHandler
 {
 public:
-	virtual void doTask(T& buffer, std::mutex& console_mtx, std::mutex& buffer_mtx, std::condition_variable& buffer_check, bool& is_filled) = 0;
+	virtual void doTask(Buffer& buffer) = 0;
 };
 
 class InterfaceFormatter
